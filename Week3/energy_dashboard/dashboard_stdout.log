@@ -1,0 +1,16 @@
+
+============================================================
+  ADVANCED ANALYTICS DASHBOARD
+============================================================
+
+Dashboard initialized successfully!
+
+Starting analytics server...
+
+  http://localhost:8501
+
+Press Ctrl+C to stop
+============================================================
+
+ * Serving Flask app 'dashboard_lite'
+ * Debug mode: off

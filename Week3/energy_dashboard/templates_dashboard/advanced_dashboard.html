@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Analytics Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .metric-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .metric-card-header h3 {
+            color: #333;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .metric-icon {
+            font-size: 1.5em;
+            color: #667eea;
+        }
+
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .metric-subtext {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .metric-badge {
+            display: inline-block;
+            background: #e8f4f8;
+            color: #009688;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.85em;
+            margin-top: 10px;
+        }
+
+        .metric-badge.danger {
+            background: #ffe8e8;
+            color: #f44336;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .chart-container h2 {
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 1200px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .table-container h2 {
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table thead {
+            background: #f5f5f5;
+        }
+
+        table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #ddd;
+        }
+
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            color: #666;
+        }
+
+        table tbody tr:hover {
+            background: #f9f9f9;
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            height: 100%;
+            border-radius: 10px;
+        }
+
+        .alert-box {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .alert {
+            display: flex;
+            gap: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid;
+        }
+
+        .alert.warning {
+            background: #fff3e0;
+            border-left-color: #ff9800;
+            color: #f57c00;
+        }
+
+        .alert.info {
+            background: #e3f2fd;
+            border-left-color: #2196f3;
+            color: #1565c0;
+        }
+
+        .alert.success {
+            background: #e8f5e9;
+            border-left-color: #4caf50;
+            color: #2e7d32;
+        }
+
+        .alert i {
+            font-size: 1.2em;
+            flex-shrink: 0;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-content h4 {
+            margin-bottom: 5px;
+        }
+
+        .alert-time {
+            font-size: 0.85em;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>
+                <i class="fas fa-chart-line"></i>
+                Advanced Analytics Dashboard
+            </h1>
+            <p>Real-time energy consumption insights and predictive analytics</p>
+        </header>
+
+        <!-- Key Metrics -->
+        <div class="dashboard-grid">
+            <div class="metric-card">
+                <div class="metric-card-header">
+                    <h3>Total Consumption</h3>
+                    <i class="fas fa-bolt metric-icon"></i>
+                </div>
+                <div class="metric-value" id="totalConsumption">0 kWh</div>
+                <div class="metric-subtext">Since Jan 11, 2016</div>
+                <div class="metric-badge">↑ 2.3% from last month</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-card-header">
+                    <h3>Daily Average</h3>
+                    <i class="fas fa-bar-chart metric-icon"></i>
+                </div>
+                <div class="metric-value" id="dailyAvg">0 kWh</div>
+                <div class="metric-subtext">Per day average</div>
+                <div class="metric-badge">Stable consumption</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-card-header">
+                    <h3>Peak Hour</h3>
+                    <i class="fas fa-fire metric-icon"></i>
+                </div>
+                <div class="metric-value" id="peakHour">18:00</div>
+                <div class="metric-subtext">Highest consumption time</div>
+                <div class="metric-badge danger">125.78 kWh peak</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-card-header">
+                    <h3>Efficiency Score</h3>
+                    <i class="fas fa-leaf metric-icon"></i>
+                </div>
+                <div class="metric-value" id="efficiency">87.5%</div>
+                <div class="metric-subtext">Energy efficiency rating</div>
+                <div class="metric-badge">↑ 1.5% improvement</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-card-header">
+                    <h3>Monthly Cost</h3>
+                    <i class="fas fa-dollar-sign metric-icon"></i>
+                </div>
+                <div class="metric-value" id="monthlyCost">$0.00</div>
+                <div class="metric-subtext">Estimated monthly bill</div>
+                <div class="metric-badge">@ $0.12/kWh</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-card-header">
+                    <h3>AI Prediction</h3>
+                    <i class="fas fa-brain metric-icon"></i>
+                </div>
+                <div class="metric-value" id="prediction">0 kWh</div>
+                <div class="metric-subtext">Next hour forecast</div>
+                <div class="metric-badge">92% confidence</div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="two-column">
+            <div class="chart-container">
+                <h2><i class="fas fa-clock"></i> Hourly Consumption Pattern</h2>
+                <canvas id="hourlyChart"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <h2><i class="fas fa-calendar"></i> Daily Consumption Trend</h2>
+                <canvas id="dailyChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Room Analysis -->
+        <div class="chart-container">
+            <h2><i class="fas fa-door-open"></i> Room-wise Energy Distribution</h2>
+            <canvas id="roomChart" height="100"></canvas>
+        </div>
+
+        <!-- Tables Section -->
+        <div class="table-container">
+            <h2><i class="fas fa-list"></i> Detailed Room Analysis</h2>
+            <table id="roomTable">
+                <thead>
+                    <tr>
+                        <th>Room</th>
+                        <th>Consumption (kWh)</th>
+                        <th>% of Total</th>
+                        <th>Efficiency</th>
+                        <th>Progress</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <!-- Predictions Table -->
+        <div class="table-container">
+            <h2><i class="fas fa-crystal-ball"></i> AI Predictions</h2>
+            <table id="predictionsTable">
+                <thead>
+                    <tr>
+                        <th>Time Period</th>
+                        <th>Predicted Consumption</th>
+                        <th>Confidence Level</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <!-- Alerts Section -->
+        <div class="alert-box">
+            <h2 style="margin-bottom: 20px; color: #333;">
+                <i class="fas fa-bell"></i> System Alerts
+            </h2>
+            <div id="alertsContainer"></div>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 Energy Consumption Analytics Dashboard | Real-time monitoring powered by AI</p>
+        </footer>
+    </div>
+
+    <script id="analytics-data" type="application/json">{{ data | tojson | safe }}</script>
+    <script>
+        // Parse data from backend safely (works in editor even when Jinja isn't rendered)
+        const analyticsDataNode = document.getElementById('analytics-data');
+        let analyticsData = {};
+        try {
+            analyticsData = analyticsDataNode && analyticsDataNode.textContent ? JSON.parse(analyticsDataNode.textContent) : {};
+        } catch (e) {
+            console.warn('Failed to parse analytics data JSON, using empty object.', e);
+            analyticsData = {};
+        }
+
+        // Update metric cards
+        document.getElementById('totalConsumption').textContent =
+            (analyticsData.overview.total_energy_consumed / 1000).toFixed(1) + ' MWh';
+        document.getElementById('dailyAvg').textContent =
+            analyticsData.overview.average_daily_consumption.toFixed(1) + ' kWh';
+        document.getElementById('peakHour').textContent =
+            analyticsData.overview.peak_hour.toString().padStart(2, '0') + ':00';
+        document.getElementById('efficiency').textContent =
+            analyticsData.overview.efficiency_score + '%';
+        document.getElementById('monthlyCost').textContent =
+            '$' + analyticsData.overview.estimated_monthly_cost.toFixed(2);
+        document.getElementById('prediction').textContent =
+            analyticsData.predictions[0].predicted.toFixed(1) + ' kWh';
+
+        // Hourly Chart
+        const hourlyCtx = document.getElementById('hourlyChart').getContext('2d');
+        new Chart(hourlyCtx, {
+            type: 'line',
+            data: {
+                labels: analyticsData.hourly_breakdown.map(h => h.hour + ':00'),
+                datasets: [{
+                    label: 'Appliances',
+                    data: analyticsData.hourly_breakdown.map(h => h.consumption),
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: true }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Daily Chart
+        const dailyCtx = document.getElementById('dailyChart').getContext('2d');
+        new Chart(dailyCtx, {
+            type: 'bar',
+            data: {
+                labels: analyticsData.daily_breakdown.map(d => d.date.split('-')[2]),
+                datasets: [{
+                    label: 'Daily Consumption',
+                    data: analyticsData.daily_breakdown.map(d => d.consumption),
+                    backgroundColor: 'rgba(118, 75, 162, 0.8)',
+                    borderColor: '#764ba2',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: true }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Room Chart (Pie)
+        const roomCtx = document.getElementById('roomChart').getContext('2d');
+        new Chart(roomCtx, {
+            type: 'doughnut',
+            data: {
+                labels: analyticsData.room_analysis.map(r => r.room),
+                datasets: [{
+                    data: analyticsData.room_analysis.map(r => r.consumption),
+                    backgroundColor: [
+                        '#667eea',
+                        '#764ba2',
+                        '#f093fb',
+                        '#4facfe',
+                        '#00f2fe',
+                        '#43e97b'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+
+        // Populate Room Table
+        const roomTableBody = document.querySelector('#roomTable tbody');
+        analyticsData.room_analysis.forEach(room => {
+            const row = `
+                <tr>
+                    <td><strong>${room.room}</strong></td>
+                    <td>${room.consumption.toFixed(1)} kWh</td>
+                    <td>${room.percentage}%</td>
+                    <td><span style="color: #4caf50;">${room.efficiency}</span></td>
+                    <td>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${room.percentage}%"></div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            roomTableBody.innerHTML += row;
+        });
+
+        // Populate Predictions Table
+        const predictionsTableBody = document.querySelector('#predictionsTable tbody');
+        analyticsData.predictions.forEach(pred => {
+            const row = `
+                <tr>
+                    <td><strong>${pred.time}</strong></td>
+                    <td>${pred.predicted.toFixed(1)} kWh</td>
+                    <td>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${pred.confidence}%"></div>
+                        </div>
+                        ${pred.confidence}%
+                    </td>
+                </tr>
+            `;
+            predictionsTableBody.innerHTML += row;
+        });
+
+        // Populate Alerts
+        const alertsContainer = document.getElementById('alertsContainer');
+        analyticsData.alerts.forEach(alert => {
+            const alertHtml = `
+                <div class="alert ${alert.level}">
+                    <i class="fas fa-${alert.level === 'warning' ? 'exclamation-triangle' : alert.level === 'info' ? 'info-circle' : 'check-circle'}"></i>
+                    <div class="alert-content">
+                        <h4>${alert.level.charAt(0).toUpperCase() + alert.level.slice(1)}</h4>
+                        <p>${alert.message}</p>
+                        <div class="alert-time">${alert.time}</div>
+                    </div>
+                </div>
+            `;
+            alertsContainer.innerHTML += alertHtml;
+        });
+    </script>
+</body>
+
+</html>
