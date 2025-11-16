@@ -46,4 +46,4 @@ Lag Features: Created lagged features for key variables (e.g., T_out 1 hour ago)
 Thermal Comfort Features: Calculated composite features like temperature difference (T_in - T_out) or average indoor conditions to provide the model with summary environmental context.
 
 3. Outlier and Anomaly Management
-Sensor Noise: Addressed outliers in sensor readings (e.g., spikes or drops in temperature/humidity) typically using clipping or smoothing techniques (e.g., rolling window average) common in sensor data projects
+Sensor Noise: Addressed outliers in sensor readings (e.g., spikes or drops in temperature/humidity) typically using clipping or smoothing techniques (e.g., rolling window average) common in sensor data prediction.
